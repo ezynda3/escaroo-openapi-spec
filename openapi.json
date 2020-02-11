@@ -1,0 +1,319 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "Escaroo API",
+    "description" : "API for creating and interacting with Escaroo escrow smart contracts",
+    "contact" : {
+      "email" : "ed.zynda@escaroo.com"
+    },
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "https://virtserver.swaggerhub.com/escaroo/Escaroo/1.0.0",
+    "description" : "SwaggerHub API Auto Mocking"
+  }, {
+    "url" : "https://api-testing.escaroo.com",
+    "description" : "Escaroo Testing Server"
+  } ],
+  "security" : [ {
+    "bearerAuth" : [ ]
+  } ],
+  "paths" : {
+    "/transactions" : {
+      "post" : {
+        "summary" : "Creates a new transaction",
+        "description" : "Create a new escrow transaction by providing a few details\n",
+        "requestBody" : {
+          "description" : "Required details for a new escrow transaction",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NewTransactionRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Newly created escrow transaction",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionCreatedResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Access token is missing or invalid"
+          },
+          "404" : {
+            "description" : "Escrow transaction for this user and escrowId does not exist"
+          }
+        }
+      }
+    },
+    "/transactions/{escrowId}" : {
+      "get" : {
+        "summary" : "Get a single transaction",
+        "description" : "Get the details of an individual transaction with a particular unique id\n",
+        "parameters" : [ {
+          "name" : "escrowId",
+          "in" : "path",
+          "description" : "Unique id of the escrow transaction",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string",
+            "example" : "1ijldA49d5dAxZ4vOo0I"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Unique escrow transaction object",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Access token is missing or invalid"
+          },
+          "404" : {
+            "description" : "Escrow transaction for this user and escrowId does not exist"
+          }
+        }
+      }
+    },
+    "/transactions/{escrowId}/delete" : {
+      "get" : {
+        "summary" : "Deletes a transaction",
+        "description" : "Delete an existing escrow transaction",
+        "parameters" : [ {
+          "name" : "escrowId",
+          "in" : "path",
+          "description" : "Unique id of the escrow transaction",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string",
+            "example" : "1ijldA49d5dAxZ4vOo0I"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Transaction deleted"
+          },
+          "401" : {
+            "description" : "Access token is missing or invalid"
+          },
+          "404" : {
+            "description" : "Escrow transaction for this user and escrowId does not exist"
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "NewTransactionRequest" : {
+        "required" : [ "buyerEmail", "currency", "sellerWalletAddr", "value" ],
+        "type" : "object",
+        "properties" : {
+          "buyerEmail" : {
+            "type" : "string",
+            "description" : "Email address of the buyer",
+            "format" : "email",
+            "example" : "contact@example.com"
+          },
+          "callbackURL" : {
+            "type" : "string",
+            "description" : "Optional webhook URL signaling that the escrow smart contract has been funded",
+            "format" : "url",
+            "example" : "https://www.example.com/callback?id=1234"
+          },
+          "currency" : {
+            "type" : "string",
+            "description" : "Currency used for the escrow transaction",
+            "example" : "erc20_bnb"
+          },
+          "orderURL" : {
+            "type" : "string",
+            "description" : "Optional URL corresponding to the order associated with the escrow transaction",
+            "example" : "https://www.example.com/orders/1234"
+          },
+          "sellerWalletAddr" : {
+            "type" : "string",
+            "description" : "Ethereum address of the seller",
+            "example" : "0x71c7656ec7ab88b098defb751b7401b5f6d8976f"
+          },
+          "value" : {
+            "type" : "string",
+            "description" : "The value in the specified currency of the escrow transaction",
+            "example" : "42.25384"
+          }
+        }
+      },
+      "TransactionCreatedResponse" : {
+        "type" : "object",
+        "properties" : {
+          "actionURL" : {
+            "type" : "string",
+            "description" : "Unique URL with UI for interacting with an escrow transaction",
+            "format" : "url",
+            "example" : "https://escaroo.com/api-transactions/1ijldA49d5dAxZ4vOo0I"
+          },
+          "buyerEmail" : {
+            "type" : "string",
+            "description" : "Email address of the buyer",
+            "format" : "email",
+            "example" : "contact@example.com"
+          },
+          "createdAt" : {
+            "type" : "integer",
+            "description" : "Unix timestamp for when the transaction was created",
+            "format" : "unix-timestamp",
+            "example" : 1581341371
+          },
+          "currency" : {
+            "type" : "string",
+            "description" : "Currency used for the escrow transaction",
+            "example" : "erc20_bnb"
+          },
+          "escrowId" : {
+            "type" : "string",
+            "description" : "Unique id of the escrow transaction",
+            "example" : "1ijldA49d5dAxZ4vOo0I"
+          },
+          "fee" : {
+            "type" : "string",
+            "description" : "The fee taken from both buyer and seller for the escrow transaction",
+            "example" : "0.6338076‬"
+          },
+          "orderURL" : {
+            "type" : "string",
+            "description" : "Optional URL corresponding to the order associated with the escrow transaction",
+            "example" : "https://www.example.com/orders/1234"
+          },
+          "sellerWalletAddr" : {
+            "type" : "string",
+            "description" : "Ethereum address of the seller",
+            "example" : "0x71c7656ec7ab88b098defb751b7401b5f6d8976f"
+          },
+          "stage" : {
+            "type" : "string",
+            "description" : "The stage of the escrow transaction during its lifecycle",
+            "example" : "AWAITING_ACCEPTANCE"
+          },
+          "value" : {
+            "type" : "string",
+            "description" : "The value in the specified currency of the escrow transaction",
+            "example" : "42.25384"
+          }
+        }
+      },
+      "TransactionResponse" : {
+        "type" : "object",
+        "properties" : {
+          "actionURL" : {
+            "type" : "string",
+            "description" : "Unique URL with UI for interacting with an escrow transaction",
+            "format" : "url",
+            "example" : "https://escaroo.com/api-transactions/1ijldA49d5dAxZ4vOo0I"
+          },
+          "buyerEmail" : {
+            "type" : "string",
+            "description" : "Email address of the buyer",
+            "format" : "email",
+            "example" : "contact@example.com"
+          },
+          "buyerWalletAddr" : {
+            "type" : "string",
+            "description" : "Ethereum address of the buyer",
+            "example" : "0x4DBBe712CDbdc63D7B2b374Bb3Ad143BEC1EecBb"
+          },
+          "contractAddr" : {
+            "type" : "string",
+            "description" : "Deployed smart contract address for the escrow transaction",
+            "example" : "0xA497E020698e17EC7054913f4677DEe12758Bc4e"
+          },
+          "createdAt" : {
+            "type" : "integer",
+            "description" : "Unix timestamp for when the transaction was created",
+            "format" : "unix-timestamp",
+            "example" : 1581341371
+          },
+          "currency" : {
+            "type" : "string",
+            "description" : "Currency used for the escrow transaction",
+            "example" : "erc20_bnb"
+          },
+          "escrowId" : {
+            "type" : "string",
+            "description" : "Unique id of the escrow transaction",
+            "example" : "1ijldA49d5dAxZ4vOo0I"
+          },
+          "fee" : {
+            "type" : "string",
+            "description" : "The fee taken from both buyer and seller for the escrow transaction",
+            "example" : "0.6338076‬"
+          },
+          "orderURL" : {
+            "type" : "string",
+            "description" : "Optional URL corresponding to the order associated with the escrow transaction",
+            "example" : "https://www.example.com/orders/1234"
+          },
+          "paymentHash" : {
+            "type" : "string",
+            "description" : "The hash corresponding to the payment transaction on the blockchain",
+            "example" : "0x81fa7f14730e31f13353e9532c5655646f93ed27098f8eccb1fba57e6749108c"
+          },
+          "releaseMsgHash" : {
+            "type" : "string",
+            "description" : "The hashed message that needs to be signed and submitted by the buyer to release funds to the seller",
+            "example" : "0xaa8887660dc83267694e4ae75d7580be33be22aa352a10f228b45021b3cd4fea"
+          },
+          "resolveMsgHash" : {
+            "type" : "string",
+            "description" : "The hashed message that needs to be signed and submitted by the buyer or seller to start the mediation process",
+            "example" : "0x4796b8cd9e5c23553eb8e009501ee926c9d5e64b5c18e04fb2ce836f674e2a3d"
+          },
+          "sellerWalletAddr" : {
+            "type" : "string",
+            "description" : "Ethereum address of the seller",
+            "example" : "0x71c7656ec7ab88b098defb751b7401b5f6d8976f"
+          },
+          "stage" : {
+            "type" : "string",
+            "description" : "The stage of the escrow transaction during its lifecycle",
+            "example" : "AWAITING_ACCEPTANCE"
+          },
+          "value" : {
+            "type" : "string",
+            "description" : "The value in the specified currency of the escrow transaction",
+            "example" : "42.25384"
+          }
+        }
+      }
+    },
+    "responses" : {
+      "UnauthorizedError" : {
+        "description" : "Access token is missing or invalid"
+      },
+      "NotFoundError" : {
+        "description" : "Escrow transaction for this user and escrowId does not exist"
+      }
+    },
+    "securitySchemes" : {
+      "bearerAuth" : {
+        "type" : "http",
+        "scheme" : "bearer"
+      }
+    }
+  }
+}
